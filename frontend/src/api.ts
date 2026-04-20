@@ -29,3 +29,24 @@ export async function postTurn(body: object) {
   if (!res.ok) throw new Error(`Failed to post turn: ${res.status}`);
   return res.json();
 }
+
+export async function downloadBattleLogs(battleId: string): Promise<void> {
+  const res = await fetch(`${BASE_URL}/battle/${battleId}/download`);
+  if (!res.ok) throw new Error(`Download failed: ${res.status}`);
+
+  const blob = await res.blob();
+
+  // Prefer the filename from Content-Disposition, fall back to battle_id
+  const disposition = res.headers.get('content-disposition') ?? '';
+  const match = disposition.match(/filename[^;=\n]*=(['"])?(.*?)\1/);
+  const filename = match?.[2] ?? `battle_${battleId}.log`;
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
