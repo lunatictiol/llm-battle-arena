@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-surface text-on-surface font-sans;
+    background-image:
+      radial-gradient(ellipse at 20% 20%, rgba(210, 0, 250, 0.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(70, 53, 167, 0.08) 0%, transparent 60%);
+    min-height: 100vh;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0e0e0e;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #534153;
+    border-radius: 2px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #a08a9f;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-surface-high bg-opacity-60 backdrop-blur-xl border border-outline-variant border-opacity-20 rounded-xl;
+    background: linear-gradient(135deg, rgba(42,42,42,0.7) 0%, rgba(20,20,20,0.8) 100%);
+  }
+
+  .glass-card-selected {
+    @apply glass-card;
+    border-color: rgba(224, 76, 255, 0.6);
+    box-shadow: 0 0 20px rgba(224, 76, 255, 0.3), inset 0 0 20px rgba(224, 76, 255, 0.05);
+  }
+
+  .btn-primary {
+    @apply bg-primary-container text-on-primary font-semibold px-8 py-3 rounded-lg
+           transition-all duration-200 hover:shadow-glow hover:scale-105 active:scale-95
+           disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none;
+  }
+
+  .btn-secondary {
+    @apply border border-outline text-on-surface font-medium px-6 py-2.5 rounded-lg
+           transition-all duration-200 hover:bg-surface-high hover:border-primary;
+  }
+
+  .section-title {
+    @apply font-serif text-2xl font-semibold text-on-surface tracking-wide;
+  }
+
+  .hp-bar-fill {
+    transition: width 0.6s ease, background-color 0.6s ease;
+  }
+
+  .bar-track {
+    @apply w-full h-2.5 rounded-full overflow-hidden;
+    background: rgba(255,255,255,0.07);
+  }
+}
