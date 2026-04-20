@@ -41,6 +41,7 @@ export default function App() {
   const [winner, setWinner] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [lastAction, setLastAction] = useState<LastAction | null>(null);
+  const [autoBattle, setAutoBattle] = useState(false);
 
   // Load agents on mount
   useEffect(() => {
@@ -48,6 +49,16 @@ export default function App() {
       .then((data) => setAgents(data.agents ?? []))
       .catch((e) => setError(e.message));
   }, []);
+
+  // Auto-battle loop: fire next turn whenever idle and auto mode is on
+  useEffect(() => {
+    if (!autoBattle || loading || battleOver || view !== 'battle') return;
+    const timer = setTimeout(() => {
+      handleNextTurn();
+    }, 600); // brief pause so the UI can paint the previous state
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoBattle, loading, battleOver, view, history.length]);
 
   // ── Reset all state for a new battle ────────────────────────────────────
   function resetToSelection() {
@@ -65,6 +76,7 @@ export default function App() {
     setWinner(null);
     setLastAction(null);
     setError(null);
+    setAutoBattle(false);
   }
 
   // ── Start Battle ─────────────────────────────────────────────────────────
@@ -381,7 +393,7 @@ export default function App() {
         <BattleLog history={history} />
 
         {/* Action bar */}
-        <div className="flex justify-center pt-2">
+        <div className="flex flex-col items-center gap-3 pt-2">
           {battleOver ? (
             <button
               id="new-battle-btn-arena"
@@ -392,18 +404,54 @@ export default function App() {
               ⚔ New Battle
             </button>
           ) : (
-            <button
-              id="next-turn-btn"
-              disabled={loading}
-              onClick={handleNextTurn}
-              className="btn-primary text-lg px-10 py-3 flex items-center gap-3"
-            >
-              {loading ? (
-                <><Spinner /> <span>Casting spell…</span></>
-              ) : (
-                '▶ Next Turn'
-              )}
-            </button>
+            <div className="flex items-center gap-3">
+              {/* Manual next-turn (disabled in auto mode) */}
+              <button
+                id="next-turn-btn"
+                disabled={loading || autoBattle}
+                onClick={handleNextTurn}
+                className="btn-primary text-lg px-8 py-3 flex items-center gap-3"
+              >
+                {loading && !autoBattle ? (
+                  <><Spinner /> <span>Casting spell…</span></>
+                ) : (
+                  '▶ Next Turn'
+                )}
+              </button>
+
+              {/* Auto-battle toggle */}
+              <button
+                id="auto-battle-toggle"
+                onClick={() => setAutoBattle((v) => !v)}
+                className={`relative flex items-center gap-2 px-5 py-3 rounded-lg font-semibold text-sm transition-all duration-200
+                  ${
+                    autoBattle
+                      ? 'bg-tertiary text-surface-lowest shadow-glow-gold'
+                      : 'btn-secondary'
+                  }`}
+                title={autoBattle ? 'Stop auto-battle' : 'Run battle automatically'}
+              >
+                {autoBattle ? (
+                  <>
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-surface-lowest opacity-60" />
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-surface-lowest" />
+                    </span>
+                    {loading ? <Spinner /> : null}
+                    Auto
+                  </>
+                ) : (
+                  '⚡ Auto'
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* Auto-battle status blurb */}
+          {autoBattle && !battleOver && (
+            <p className="text-xs text-tertiary font-mono animate-shimmer">
+              Auto-battle running… watching the arcane unfold
+            </p>
           )}
         </div>
       </main>
