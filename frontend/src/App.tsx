@@ -351,6 +351,7 @@ export default function App() {
       {battleOver && winner && (
         <WinnerOverlay
           winner={winner}
+          battleId={battleId}
           yieldReason={
             history.length > 0
               ? (history[history.length - 1] as HistoryEntry & { yield_reason?: string })?.yield_reason
